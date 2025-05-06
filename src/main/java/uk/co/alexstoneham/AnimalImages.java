@@ -79,7 +79,35 @@ public class AnimalImages {
                 imageUrl = json.getString(key);
             }
 
-            label.setIcon(new ImageIcon(new URL(imageUrl)));
+            // Load image
+            ImageIcon originalIcon = new ImageIcon(new URL(imageUrl));
+            Image originalImage = originalIcon.getImage();
+
+            // Get size of the label to fit the image
+            int maxWidth = label.getWidth();
+            int maxHeight = label.getHeight();
+
+            // Fallback if label is not displayed yet
+            if (maxWidth == 0 || maxHeight == 0) {
+                maxWidth = 500;
+                maxHeight = 400;
+            }
+
+            // Scale image maintaining aspect ratio
+            int originalWidth = originalImage.getWidth(null);
+            int originalHeight = originalImage.getHeight(null);
+            double aspectRatio = (double) originalWidth / originalHeight;
+
+            int newWidth = maxWidth;
+            int newHeight = (int) (maxWidth / aspectRatio);
+
+            if (newHeight > maxHeight) {
+                newHeight = maxHeight;
+                newWidth = (int) (maxHeight * aspectRatio);
+            }
+
+            Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_FAST);
+            label.setIcon(new ImageIcon(scaledImage));
         } catch (IOException | InterruptedException | JSONException ex) {
             showError(parent, ex);
         }
